@@ -2,6 +2,8 @@
 
 > **Redrob Hackathon Submission** — An AI-powered candidate ranking system that goes beyond keyword matching to understand who truly fits a role.
 
+**Live Demo**: [huggingface.co/spaces/pandugamanoj9/ai_recruiter](https://huggingface.co/spaces/pandugamanoj9/ai_recruiter)
+
 ---
 
 ## Problem Statement
@@ -173,6 +175,29 @@ AI_Recruiter/
 
 ---
 
+## Results
+
+| Metric | Value |
+|--------|-------|
+| Candidates ranked | 100,000 → 100 |
+| AI-relevant roles in top 100 | 98/100 |
+| Unique reasonings | 100/100 (zero templated) |
+| Runtime (CPU) | ~105 seconds |
+| JD required skills extracted | python, embeddings, ndcg, mrr, milvus, pinecone, elasticsearch, etc. |
+| Seniority correctly matched | Senior (JD asks for 5-9 years) |
+
+**Sample top-5 rankings:**
+
+| Rank | Title | YoE | AI Skills | Key Matches |
+|------|-------|-----|-----------|-------------|
+| 1 | Senior NLP Engineer | 8.0 | 5 | elasticsearch, milvus, pinecone, qdrant |
+| 2 | Lead Staff ML Engineer | 8.8 | 4 | elasticsearch, milvus, opensearch, python |
+| 3 | Senior Recommendation Systems Engineer | 5.8 | 3 | embedding, faiss, milvus, opensearch |
+| 4 | Senior NLP Engineer | 7.9 | 3 | elasticsearch, faiss, opensearch, pinecone |
+| 5 | Senior Applied ML Engineer | 8.0 | 4 | embedding, opensearch, pinecone, qdrant |
+
+---
+
 ## Compute Constraints
 
 | Constraint | Requirement | Implementation |
@@ -203,3 +228,15 @@ A perfect-on-paper candidate who hasn't logged in for 6 months isn't actually av
 ## License
 
 Built for the Redrob Intelligent Candidate Discovery & Ranking Challenge (India Runs Data & AI Challenge).
+
+---
+
+## Submission Files
+
+| File | Description |
+|------|-------------|
+| `submission.csv` | Top 100 ranked candidates (required format) |
+| `submission_metadata.yaml` | Team info, compute specs, methodology |
+| `presentation.pdf` | 10-slide technical presentation |
+| `rank.py` | Main entry point — run `python rank.py` to reproduce |
+| `README.md` | This file |
