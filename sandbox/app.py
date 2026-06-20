@@ -59,8 +59,10 @@ def load_sample_candidates(n: int):
     candidates = []
     # Try multiple paths
     paths_to_try = [
+        Path("processed_candidates_sample.jsonl"),  # Sandbox sample (200 candidates)
         Path("processed_candidates.jsonl"),
         Path("backend") / "processed_candidates.jsonl",
+        Path(__file__).resolve().parent / "processed_candidates_sample.jsonl",
         Path(__file__).resolve().parent / "processed_candidates.jsonl",
         Path(__file__).resolve().parent / "backend" / "processed_candidates.jsonl",
     ]

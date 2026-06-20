@@ -22,7 +22,7 @@ team_members:
 # ============================================================================
 github_repo: "https://github.com/1Manojkumar1/AI_Recruiter"
 
-sandbox_link: "https://huggingface.co/spaces/AI-Recruiter/redrob-ranker"
+sandbox_link: "https://huggingface.co/spaces/pandugamanoj9/ai_recruiter"
 
 reproduce_command: "python rank.py --candidates ./backend/processed_candidates.jsonl --out ./AI_Recruiter.csv"
 
