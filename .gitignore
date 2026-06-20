@@ -10,6 +10,10 @@ desktop.ini
 
 # --- Hackathon official data (don't redistribute) ---
 [PUB] India_runs_data_and_ai_challenge/
+README.txt
+submission_spec.txt
+redrob_signals_doc.txt
+redrob_signals_doc_detailed.txt
 
 # --- Python ---
 __pycache__/
