@@ -41,6 +41,9 @@ node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/tsconfig.tsbuildinfo
+frontend/tsconfig.node.tsbuildinfo
+frontend/vite.config.d.ts
 
 # --- Testing ---
 .pytest_cache/
@@ -53,6 +56,8 @@ coverage/
 test_submission.csv
 submission.csv
 AI_Recruiter.csv
+backend/sample_profiles.py
+backend/part2/example_jds.json
 
 # --- Data (large files, download separately) ---
 backend/candidates.jsonl
