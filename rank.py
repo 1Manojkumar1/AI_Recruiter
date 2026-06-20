@@ -121,40 +121,123 @@ def load_job_description(path: str) -> str:
         return p.read_text(encoding="utf-8")
 
 
-def generate_reasoning(candidate: dict, response_rate: float = 0.0) -> str:
+def generate_reasoning(candidate: dict, job_parsed: dict = None) -> str:
     """
-    Generate a reasoning string for a candidate in the submission format.
+    Generate a specific, data-driven reasoning string for a ranked candidate.
 
-    Format: "Title with X yrs; Y AI core skills; response rate 0.XX"
+    Produces reasoning like:
+    "ML Engineer (7.0 YoE) meets 5+ year target; currently at Flipkart;
+     strong AI depth (12 AI/ML skills); covers core requirements: python, embeddings,
+     pytorch; actively open to work; high recruiter engagement."
     """
-    # Extract title from profile_summary (first part before "with")
+    if job_parsed is None:
+        job_parsed = {}
+
     summary = candidate.get("profile_summary", "")
     title = summary.split(" with ")[0].split(" at ")[0].strip() if summary else "Unknown"
     if not title or title == "Unknown":
-        # Fallback: try seniority + domain
         seniority = candidate.get("seniority", "")
         domains = candidate.get("domains", [])
         domain = domains[0] if domains else "Professional"
         title = f"{seniority} {domain}".strip() if seniority else domain
 
-    # Experience years
+    # Deduplicate seniority prefix (e.g., "Senior Senior NLP Engineer" -> "Senior NLP Engineer")
+    seniority_levels = ["Principal", "Staff", "Lead", "Senior", "Junior", "Mid"]
+    for level in seniority_levels:
+        dup = f"{level} {level} "
+        if title.startswith(dup):
+            title = title[len(level) + 1:]
+            break
+
     years = candidate.get("total_experience_years", 0)
-    years_str = f"{years:.1f}" if years else "N/A"
-
-    # Count AI core skills (skills with score > 0.6)
-    skills = candidate.get("skills", {})
-    if isinstance(skills, dict):
-        ai_core = sum(1 for s, sc in skills.items() if sc > 0.6)
-    elif isinstance(skills, list):
-        ai_core = len(skills)
-    else:
-        ai_core = 0
-
-    # Response rate from redrob_signals
+    company = candidate.get("current_company", "")
     redrob = candidate.get("redrob_signals", {})
-    rr = redrob.get("recruiter_response_rate", response_rate)
+    rr = redrob.get("recruiter_response_rate", 0)
+    open_to_work = redrob.get("open_to_work", False)
 
-    return f"{title} with {years_str} yrs; {ai_core} AI core skills; response rate {rr:.2f}."
+    skills = candidate.get("skills", {})
+    ai_keywords = {
+        "machine learning", "deep learning", "nlp", "computer vision",
+        "transformer", "bert", "gpt", "llm", "tensorflow", "pytorch",
+        "neural network", "embedding", "fine-tuning", "langchain",
+        "hugging face", "rag", "retrieval", "vector database",
+        "recommendation", "information retrieval", "scikit-learn",
+        "xgboost", "lightgbm", "keras", "speech recognition",
+    }
+    if isinstance(skills, dict):
+        ai_skills = [s for s in skills if s.lower() in ai_keywords or any(k in s.lower() for k in ai_keywords)]
+        ai_count = len(ai_skills)
+        top_ai = sorted(ai_skills, key=lambda s: skills.get(s, 0), reverse=True)[:5]
+    elif isinstance(skills, list):
+        ai_skills = [s for s in skills if s.lower() in ai_keywords or any(k in s.lower() for k in ai_keywords)]
+        ai_count = len(ai_skills)
+        top_ai = ai_skills[:5]
+    else:
+        ai_count = 0
+        top_ai = []
+
+    # Match against JD required skills
+    required = job_parsed.get("required_skills", [])
+    matched_req = []
+    for req in required:
+        for sk in (skills.keys() if isinstance(skills, dict) else skills):
+            if req.lower() in sk.lower() or sk.lower() in req.lower():
+                matched_req.append(req)
+                break
+    preferred = job_parsed.get("preferred_skills", [])
+    matched_pref = []
+    for pref in preferred:
+        for sk in (skills.keys() if isinstance(skills, dict) else skills):
+            if pref.lower() in sk.lower() or sk.lower() in pref.lower():
+                matched_pref.append(pref)
+                break
+
+    parts = []
+
+    # Role and experience fit
+    req_exp = job_parsed.get("experience", 0)
+    if req_exp > 0:
+        if years >= req_exp:
+            parts.append(f"{title} ({years:.1f} YoE) meets the {req_exp}+ year requirement")
+        elif years >= req_exp * 0.7:
+            parts.append(f"{title} ({years:.1f} YoE) close to {req_exp} year target")
+        else:
+            parts.append(f"{title} ({years:.1f} YoE) below {req_exp} year target")
+    else:
+        parts.append(f"{title} with {years:.1f} years experience")
+
+    if company:
+        parts.append(f"currently at {company}")
+
+    # AI skill density
+    if ai_count >= 10:
+        parts.append(f"strong AI depth ({ai_count} AI/ML skills including {', '.join(top_ai[:3])})")
+    elif ai_count >= 5:
+        parts.append(f"solid AI foundation ({ai_count} AI/ML skills)")
+    elif ai_count > 0:
+        parts.append(f"limited AI exposure ({ai_count} AI/ML skills)")
+    else:
+        parts.append("no explicit AI/ML skills in profile")
+
+    # JD skill coverage
+    if matched_req:
+        parts.append(f"covers required: {', '.join(matched_req[:4])}")
+    elif required:
+        parts.append("missing key required skills")
+    if matched_pref:
+        parts.append(f"bonus: {', '.join(matched_pref[:3])}")
+
+    # Platform signals
+    if open_to_work:
+        parts.append("actively open to work")
+    if rr >= 0.7:
+        parts.append("highly responsive to recruiters")
+    elif rr >= 0.4:
+        parts.append("moderate recruiter engagement")
+    elif rr > 0:
+        parts.append("low recruiter response rate")
+
+    return "; ".join(parts) + "."
 
 
 def normalize_score(score: float, all_scores: list) -> float:
@@ -268,7 +351,7 @@ def generate_submission(
     for cand in ranked:
         norm_score = normalize_score(cand["final_score"], raw_scores)
         orig_cand = cand_map.get(cand["candidate_id"], {})
-        reasoning = generate_reasoning(orig_cand)
+        reasoning = generate_reasoning(orig_cand, job_parsed=parsed_jd)
         rows.append({
             "candidate_id": cand["candidate_id"],
             "rank": 0,  # assigned after sorting

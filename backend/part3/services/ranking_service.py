@@ -134,8 +134,16 @@ def rank_candidates(
         )
         results.append(result)
 
-    # Sort by final score descending
-    results.sort(key=lambda x: x["final_score"], reverse=True)
+    # Sort by final score descending, with tiebreakers
+    results.sort(
+        key=lambda x: (
+            x["final_score"],
+            x.get("breakdown", {}).get("semantic", 0),
+            x.get("breakdown", {}).get("skill", 0),
+            x.get("breakdown", {}).get("experience", 0),
+        ),
+        reverse=True,
+    )
 
     # Assign ranks
     for i, r in enumerate(results, 1):
@@ -263,7 +271,7 @@ def _score_single_candidate(
             is_explicit_non_tech = True
             
     if not is_tech or is_explicit_non_tech:
-        final -= 80.0  # Apply heavy penalty for non-tech roles
+        final = -100.0  # Disqualify non-tech roles completely
 
     # 2. Consulting firm penalty
     companies = candidate.get("companies", [])

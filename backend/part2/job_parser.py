@@ -75,6 +75,13 @@ def _load_known_skills(path: str = "") -> None:
         "dbt", "snowflake", "bigquery", "redshift", "databricks",
         "prometheus", "grafana", "datadog",
         "html", "css",
+        # JD-specific skills
+        "sentence-transformers", "bge", "e5", "qdrant", "opensearch",
+        "faiss", "ndcg", "mrr", "map", "a/b testing",
+        "lora", "qlora", "peft", "learning-to-rank",
+        "llm fine-tuning", "distributed systems", "hr-tech",
+        "embedding", "retrieval", "ranking", "information retrieval",
+        "recommendation", "search", "fine-tuning",
     ]
     _KNOWN_SKILLS = {_normalise_skill(s) for s in seed}
     if path:
@@ -98,12 +105,15 @@ def _load_known_skills(path: str = "") -> None:
 _SECTION_PATTERNS = {
     "required_skills": re.compile(
         r"(must[\s-]*have|required|essential|core[\s-]*skills|"
-        r"key[\s-]*skills|required[\s-]*skills|minimum[\s-]*qualifications)",
+        r"key[\s-]*skills|required[\s-]*skills|minimum[\s-]*qualifications|"
+        r"things you absolutely need|what you(?:'d| would) actually be doing|"
+        r"skills inventory)",
         re.IGNORECASE,
     ),
     "preferred_skills": re.compile(
         r"(nice[\s-]*to[\s-]*have|preferred|desired|bonus|plus|"
-        r"good[\s-]*to[\s-]*have|preferred[\s-]*skills)",
+        r"good[\s-]*to[\s-]*have|preferred[\s-]*skills|"
+        r"things we(?:'d| would) like you to have|things we like)",
         re.IGNORECASE,
     ),
     "experience": re.compile(
@@ -116,6 +126,11 @@ _SECTION_PATTERNS = {
     ),
     "domains": re.compile(
         r"(domain|industry|sector|vertical|field|domain[\s-]*expertise)",
+        re.IGNORECASE,
+    ),
+    "anti_patterns": re.compile(
+        r"(things we explicitly do not want|what we(?:'d| would) not|"
+        r"who we(?:'re| are) not looking for|disqualifiers)",
         re.IGNORECASE,
     ),
 }
@@ -132,6 +147,7 @@ _TITLE_LEVEL_MAP: Dict[str, str] = {
 
 # Patterns for extracting years of experience
 _YOE_PATTERNS = [
+    re.compile(r"(\d{1,2})\+?\s*[-–]\s*(\d{1,2})\s*(?:years?|yrs?)", re.IGNORECASE),  # range like 5-9 years
     re.compile(r"(\d{1,2})\+?\s*(?:years?|yrs?)", re.IGNORECASE),
     re.compile(r"(?:experience|exp)[\s:]*(\d{1,2})\+?\s*(?:years?|yrs?)?", re.IGNORECASE),
     re.compile(r"(\d{1,2})\+?\s*(?:years?|yrs?)\s*(?:of)?\s*(?:experience|exp)", re.IGNORECASE),
@@ -167,19 +183,24 @@ class JobParser:
             return self._empty_result()
 
         text = jd_text.strip()
-        sections = self._split_sections(text)
 
-        required_skills = self._extract_skills(
-            sections.get("required_skills", []),
-            text,
-        )
-        preferred_skills = self._extract_skills(
-            sections.get("preferred_skills", []),
-            text,
-            exclude=required_skills,
-        )
+        # Try structured extraction first (for JDs with "skills inventory" sections)
+        required_skills, preferred_skills = self._extract_skills_from_inventory(text)
 
-        # If no section headers found, try to extract skills from entire text
+        if not required_skills:
+            # Fallback to section-based extraction
+            sections = self._split_sections(text)
+            required_skills = self._extract_skills(
+                sections.get("required_skills", []),
+                text,
+            )
+            preferred_skills = self._extract_skills(
+                sections.get("preferred_skills", []),
+                text,
+                exclude=required_skills,
+            )
+
+        # If still no skills, scan full text
         if not required_skills and not preferred_skills:
             required_skills = self._extract_skills([], text)
 
@@ -195,6 +216,39 @@ class JobParser:
             "domains": sorted(domains),
             "raw_text": text,
         }
+
+    def _extract_skills_from_inventory(self, text: str) -> tuple:
+        """Extract skills from 'skills inventory' style sections."""
+        required = set()
+        preferred = set()
+
+        # Look for "Things you absolutely need" section
+        req_match = re.search(
+            r"things you absolutely need\s*\n(.*?)(?=things (?:we|they)|$)",
+            text,
+            re.IGNORECASE | re.DOTALL,
+        )
+        if req_match:
+            section = req_match.group(1)
+            for sk in _KNOWN_SKILLS:
+                pattern = r"(?<!\w)" + re.escape(sk) + r"(?!\w)"
+                if re.search(pattern, section.lower()):
+                    required.add(sk)
+
+        # Look for "Things we'd like you to have" section (including the "but won't reject you for" part)
+        pref_match = re.search(
+            r"things we(?:'d| would) like you to have[^a-z]*(.*?)(?=things (?:we|they)|final note|$)",
+            text,
+            re.IGNORECASE | re.DOTALL,
+        )
+        if pref_match:
+            section = pref_match.group(1)
+            for sk in _KNOWN_SKILLS:
+                pattern = r"(?<!\w)" + re.escape(sk) + r"(?!\w)"
+                if re.search(pattern, section.lower()):
+                    preferred.add(sk)
+
+        return required, preferred
 
     # ------------------------------------------------------------------
     # Section splitting
@@ -255,20 +309,32 @@ class JobParser:
                     if ns not in exclude and self._is_likely_skill(ns, token):
                         skills.add(ns)
 
-        # Fallback: scan full text for known skills
-        if not skills:
-            lowered = full_text.lower()
-            for sk in _KNOWN_SKILLS:
-                if sk in lowered and sk not in exclude:
-                    # Avoid matching partial words
-                    pattern = r"(?<!\w)" + re.escape(sk) + r"(?!\w)"
-                    if re.search(pattern, lowered):
-                        skills.add(sk)
+        # Always scan full text for known skills (narrative JDs don't use bullet lists)
+        lowered = full_text.lower()
+        for sk in _KNOWN_SKILLS:
+            if sk in lowered and sk not in exclude and sk not in skills:
+                # Avoid matching partial words
+                pattern = r"(?<!\w)" + re.escape(sk) + r"(?!\w)"
+                if re.search(pattern, lowered):
+                    skills.add(sk)
 
         return skills
 
     def _clean_skill_line(self, line: str) -> List[str]:
         """Extract skill tokens from a single line like '- Python' or '• Docker'."""
+        # Skip lines that look like sentences (contain pronouns, verbs, etc.)
+        narrative_indicators = [
+            "we ", "you ", "if ", "your ", "this ", "that ", "the ", "and ",
+            "but ", "or ", "not ", "with ", "for ", "are ", "is ", "have ",
+            "will ", "would ", "should ", "can ", "could ", "need ",
+        ]
+        line_lower = line.lower().strip()
+        if any(ind in line_lower for ind in narrative_indicators):
+            return []
+        # Skip lines that are too long to be a skill
+        if len(line.strip()) > 60:
+            return []
+
         line = re.sub(r"^[\s\-\•\*\►\>\:\.]+", "", line)
         line = re.sub(r"[\s\-\•\*\►\>\:\.]+$", "", line)
         if not line:
@@ -295,7 +361,11 @@ class JobParser:
             match = pattern.search(text)
             if match:
                 try:
-                    return int(match.group(1))
+                    groups = match.groups()
+                    if len(groups) >= 2 and groups[1]:
+                        # Range pattern: take the minimum
+                        return min(int(groups[0]), int(groups[1]))
+                    return int(groups[0])
                 except (ValueError, IndexError):
                     continue
         return 0
@@ -306,7 +376,25 @@ class JobParser:
 
     def _extract_seniority(self, text: str) -> str:
         lowered = text.lower()
-        # Check title-like patterns
+        # First, check if the job title contains a seniority level
+        # Look for patterns like "Senior AI Engineer" or "Lead Developer" at the start
+        title_match = re.search(
+            r"(?:job\s*title|position)[:\s]*([^\n]+)",
+            lowered,
+        )
+        title_text = title_match.group(1) if title_match else ""
+        if not title_text:
+            # Try first line (often the title)
+            first_line = lowered.split("\n")[0] if "\n" in lowered else lowered[:100]
+            title_text = first_line
+
+        # Check title for seniority
+        for keyword, level in sorted(_TITLE_LEVEL_MAP.items(), key=lambda x: -len(x[0])):
+            pattern = r"(?<!\w)" + re.escape(keyword) + r"(?!\w)"
+            if re.search(pattern, title_text):
+                return level
+
+        # Fallback: check full text
         for keyword, level in sorted(_TITLE_LEVEL_MAP.items(), key=lambda x: -len(x[0])):
             pattern = r"(?<!\w)" + re.escape(keyword) + r"(?!\w)"
             if re.search(pattern, lowered):
