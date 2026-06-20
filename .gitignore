@@ -1,0 +1,71 @@
+# ============================================
+# AI Recruiter — .gitignore
+# ============================================
+
+# --- OS files ---
+__MACOSX/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Hackathon official data (don't redistribute) ---
+[PUB] India_runs_data_and_ai_challenge/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.whl
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+ENV/
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Node.js ---
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# --- Testing ---
+.pytest_cache/
+.coverage
+htmlcov/
+coverage/
+*.cover
+
+# --- Generated files ---
+test_submission.csv
+submission.csv
+AI_Recruiter.csv
+
+# --- Data (large files, download separately) ---
+backend/candidates.jsonl
+backend/processed_candidates.jsonl
+*.bin
+*.npy
+
+# --- Environment variables ---
+.env
+.env.local
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- Logs ---
+*.log

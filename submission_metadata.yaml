@@ -1,0 +1,77 @@
+# Redrob Hackathon — Submission Metadata
+#
+# Filled in for the AI Recruiter project.
+
+# ============================================================================
+# Team identity
+# ============================================================================
+team_name: "AI_Recruiter"
+
+primary_contact:
+  name: "AI Recruiter Team"
+  email: "team-ai-recruiter@example.com"
+  phone: "+91-XXXXXXXXXX"
+
+team_members:
+  - name: "AI Recruiter Team Member"
+    email: "team-ai-recruiter@example.com"
+    role: "Full-stack ML Engineer"
+
+# ============================================================================
+# Code and reproducibility
+# ============================================================================
+github_repo: "https://github.com/AI-Recruiter/ai-recruiter"
+
+sandbox_link: "https://huggingface.co/spaces/AI-Recruiter/redrob-ranker"
+
+reproduce_command: "python rank.py --candidates ./backend/processed_candidates.jsonl --out ./AI_Recruiter.csv"
+
+# ============================================================================
+# Compute environment
+# ============================================================================
+compute:
+  platform: "Local development machine"
+  cpu_cores: 8
+  ram_gb: 16
+  python_version: "3.11.4"
+  os: "Windows 11"
+  uses_gpu_for_inference: false
+  has_network_during_ranking: false
+  pre_computation_required: false
+  pre_computation_time_minutes: 0
+
+# ============================================================================
+# AI tools declaration
+# ============================================================================
+ai_tools_used:
+  - "Claude"
+  - "GitHub Copilot"
+
+ai_usage_summary: |
+  Used Claude for architecture discussion, code review, and debugging.
+  Used GitHub Copilot for autocomplete during development.
+  No candidate data was fed to any external LLM API.
+  All explanations are generated using template-based NLG (no external API calls).
+
+# ============================================================================
+# Approach summary
+# ============================================================================
+methodology_summary: |
+  Multi-factor candidate ranking system combining skill matching, semantic
+  similarity, experience alignment, education scoring, achievement analysis,
+  and platform behavioral signals. Uses sentence-transformers for embeddings
+  with random-projection fallback, TF-IDF + fuzzy matching for skills, and
+  a weighted composite score. Redrob platform signals (response rate, open
+  to work flag, GitHub activity, recruiter engagement) provide behavioral
+  context. Template-based NLG generates natural language explanations.
+  Runtime is under 5 minutes for 50K candidates on CPU.
+
+# ============================================================================
+# Declarations
+# ============================================================================
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true
+  reproduction_tested: true

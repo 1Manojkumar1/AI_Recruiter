@@ -1,0 +1,22 @@
+[
+  {
+    "title": "Senior Backend Engineer - FinTech",
+    "description": "Looking for Senior Backend Engineer.\n\nMust Have:\nPython\nFastAPI\nDocker\nMicroservices\nSQL\n\nPreferred:\nKafka\nAWS\nRedis\n\nExperience:\n5+ years\n\nDomain:\nFinTech"
+  },
+  {
+    "title": "AI/ML Engineer",
+    "description": "AI/ML Engineer - Machine Learning Systems\n\nMust Have:\nPython\nPyTorch\nTensorFlow\nMachine Learning\nDeep Learning\n\nPreferred:\nKubernetes\nMLOps\nNLP\nTransformers\n\nExperience:\n3+ years\n\nDomain:\nAI/ML"
+  },
+  {
+    "title": "Senior Data Engineer",
+    "description": "Senior Data Engineer\n\nMust Have:\nPython\nSQL\nSpark\nAirflow\nData Pipelines\n\nPreferred:\nAWS\nSnowflake\ndbt\n\nExperience:\n4+ years\n\nDomain:\nData Engineering\nCloud"
+  },
+  {
+    "title": "DevOps Engineer",
+    "description": "DevOps / Platform Engineer\n\nMust Have:\nDocker\nKubernetes\nTerraform\nCI/CD\nLinux\n\nPreferred:\nAWS\nPrometheus\nGrafana\nPython\n\nExperience:\n3+ years\n\nDomain:\nCloud"
+  },
+  {
+    "title": "Full Stack Developer",
+    "description": "Full Stack Developer\n\nMust Have:\nReact\nNode.js\nJavaScript\nTypeScript\nSQL\n\nPreferred:\nGraphQL\nDocker\nAWS\nRedis\n\nExperience:\n3+ years\n\nDomain:\nE-commerce"
+  }
+]
