@@ -65,7 +65,7 @@ def main() -> None:
     # 5. Summary
     total = time.time() - t0
     print(f"\n{'=' * 60}")
-    print(f"  Done! {len(results)} candidates processed in {total:.2f}s")
+    print(f"  Complete: {len(results)} candidates processed in {total:.2f}s")
     print(f"  Output: {out}")
     print(f"{'=' * 60}")
 

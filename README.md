@@ -149,6 +149,14 @@ Output: `submission.csv` (100 ranked candidates)
 python "[PUB] India_runs_data_and_ai_challenge/India_runs_data_and_ai_challenge/validate_submission.py" submission.csv
 ```
 
+### Full Verification
+
+Runs unit tests, ranking pipeline, format validation, and trap detection:
+
+```bash
+python run_verification.py
+```
+
 ---
 
 ## Project Structure

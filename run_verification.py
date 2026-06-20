@@ -23,12 +23,12 @@ def run_command(cmd, desc):
         print(res.stdout)
         return True, res.stdout
     except subprocess.CalledProcessError as e:
-        print("[-] FAILED!")
+        print("[-] FAILED")
         print(e.stdout)
         return False, e.stdout
 
 def main():
-    print_banner("AI RECRUITER HACKATHON VERIFICATION SUITE")
+    print_banner("AI RECRUITER VERIFICATION SUITE")
     
     # 1. Run Unit Tests
     test_success, _ = run_command("python -m pytest backend/tests", "Unit Tests")
@@ -40,7 +40,7 @@ def main():
     )
     
     if not rank_success:
-        print_banner("VERIFICATION FAILED: Ranking step failed.")
+        print_banner("VERIFICATION FAILED: Ranking pipeline failed.")
         sys.exit(1)
         
     # 3. Run Submission Format Validator
@@ -125,10 +125,10 @@ def main():
     print("=" * 80)
     
     if test_success and rank_success and val_success and trap_success:
-        print(" SUCCESS: The project is fully compliant and ready for the hackathon!")
+        print(" ALL CHECKS PASSED")
         sys.exit(0)
     else:
-        print(" FAILURE: One or more checks failed. Please inspect the logs above.")
+        print(" FAILED: One or more checks did not pass. See details above.")
         sys.exit(1)
 
 if __name__ == "__main__":

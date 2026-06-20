@@ -119,7 +119,7 @@ def main():
         if len(issues) > 10:
             print(f"  ... and {len(issues) - 10} more")
     else:
-        print(f"  All quality checks passed!")
+        print(f"  All quality checks passed")
 
     print(f"\n{'='*60}")
     print(f"  VERIFICATION COMPLETE")
