@@ -173,6 +173,33 @@ Runs unit tests, ranking pipeline, format validation, and trap detection:
 python run_verification.py
 ```
 
+### Run Frontend (React Dashboard)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Opens at `http://localhost:5173`. Requires the backend API running separately:
+
+```bash
+# Terminal 1 — Backend
+cd backend
+python -m uvicorn app.main:app --reload --port 8000
+
+# Terminal 2 — Frontend
+cd frontend
+npm run dev
+```
+
+### Run Frontend Tests
+
+```bash
+cd frontend
+npm test
+```
+
 ---
 
 ## Project Structure
