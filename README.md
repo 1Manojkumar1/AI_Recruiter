@@ -139,8 +139,9 @@ pip install sentence-transformers
 
 The full candidate dataset is not included in the repo (465MB). To run the ranking pipeline:
 
-1. Get `candidates.jsonl` and `processed_candidates.jsonl` from the hackathon dataset provided by Redrob
-2. Place them in `backend/` directory:
+1. Download the dataset from [Google Drive](https://drive.google.com/file/d/1MfD47XvVdRKBGRAyzGOxDCEf2ve96Jjo/view)
+2. Extract `candidates.jsonl` and `processed_candidates.jsonl`
+3. Place them in `backend/` directory:
    ```
    backend/candidates.jsonl
    backend/processed_candidates.jsonl
