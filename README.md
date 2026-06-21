@@ -2,8 +2,6 @@
 
 > **Redrob Hackathon Submission** — An AI-powered candidate ranking system that goes beyond keyword matching to understand who truly fits a role.
 
-**Live Demo**: [huggingface.co/spaces/pandugamanoj9/ai_recruiter](https://huggingface.co/spaces/pandugamanoj9/ai_recruiter)
-
 ---
 
 ## Problem Statement
@@ -147,10 +145,6 @@ The full candidate dataset is not included in the repo (465MB). To run the ranki
    backend/processed_candidates.jsonl
    ```
 
-**Quick demo without full data:**
-
-The sandbox demo at [huggingface.co/spaces/pandugamanoj9/ai_recruiter](https://huggingface.co/spaces/pandugamanoj9/ai_recruiter) runs with a 200-candidate sample — no data setup needed.
-
 ### Generate Submission
 
 ```bash
@@ -221,7 +215,7 @@ AI_Recruiter/
 │   └── app/                         # FastAPI REST API
 │
 ├── frontend/                        # React dashboard
-├── sandbox/                         # HuggingFace Space demo
+├── sandbox/                         # Streamlit demo app
 └── [PUB] India_runs_data_and_ai_challenge/  # Official dataset
 ```
 
