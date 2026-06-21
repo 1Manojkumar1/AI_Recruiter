@@ -135,6 +135,21 @@ pip install -r backend/requirements.txt
 pip install sentence-transformers
 ```
 
+### Data Setup
+
+The full candidate dataset is not included in the repo (465MB). To run the ranking pipeline:
+
+1. Get `candidates.jsonl` and `processed_candidates.jsonl` from the hackathon dataset provided by Redrob
+2. Place them in `backend/` directory:
+   ```
+   backend/candidates.jsonl
+   backend/processed_candidates.jsonl
+   ```
+
+**Quick demo without full data:**
+
+The sandbox demo at [huggingface.co/spaces/pandugamanoj9/ai_recruiter](https://huggingface.co/spaces/pandugamanoj9/ai_recruiter) runs with a 200-candidate sample — no data setup needed.
+
 ### Generate Submission
 
 ```bash
@@ -169,7 +184,8 @@ AI_Recruiter/
 ├── submission_metadata.yaml         # Hackathon metadata
 │
 ├── backend/
-│   ├── processed_candidates.jsonl   # Enriched 100K candidates
+│   ├── candidates.jsonl             # Raw 100K candidates (download separately)
+│   ├── processed_candidates.jsonl   # Enriched 100K candidates (download separately)
 │   ├── candidate_processing/        # Data processing pipeline
 │   ├── part2/                       # JD parsing
 │   ├── part3/                       # Ranking engine (scoring + weights)
