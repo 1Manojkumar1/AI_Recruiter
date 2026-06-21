@@ -58,7 +58,6 @@ coverage/
 
 # --- Generated files ---
 test_submission.csv
-submission.csv
 AI_Recruiter.csv
 backend/sample_profiles.py
 backend/part2/example_jds.json
